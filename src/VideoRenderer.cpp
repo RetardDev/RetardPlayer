@@ -1,22 +1,23 @@
-#include "VideoRenderer.hpp"
+#include "VideoRenderer.hpp"  
 
-VideoRenderer::VideoRenderer(){
+VideoRenderer::VideoRenderer(): window(nullptr), renderer(nullptr), texture(nullptr), SCREEN_WIDTH(1280), SCREEN_HEIGHT(720){
   initSDL();
 }
 
 VideoRenderer::~VideoRenderer(){
+  if(texture){}
+
   if(renderer){
     SDL_DestroyRenderer(renderer);
   }
   if(window){
     SDL_DestroyWindow(window);
   }
+
   SDL_Quit();
 }
 
 void VideoRenderer::initSDL(){
-  SCREEN_WIDTH = 1280;
-  SCREEN_HEIGHT = 720;
 
   if(SDL_Init(SDL_INIT_VIDEO)){
     std::cerr << "Could not initialise SDL" << SDL_GetError();
@@ -60,4 +61,11 @@ void VideoRenderer::prepareScene(){
 
 void VideoRenderer::presentScene(){
   SDL_RenderPresent(renderer);
+}
+
+void VideoRenderer::renderFrame(AVFrame* pFrame){}
+
+SDL_Renderer* VideoRenderer::getRenderer(){
+
+  return renderer;
 }
