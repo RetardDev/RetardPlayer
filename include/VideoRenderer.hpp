@@ -10,21 +10,13 @@ class VideoRenderer : public VideoProcessor{
     VideoRenderer();
     virtual ~VideoRenderer();
   
-    void initSDL();
-    void handleInput();
     void prepareScene();
     void presentScene();
     void renderFrame(AVFrame* pFrame);
-    SDL_Renderer* getRenderer();
 
   private:
-    int SCREEN_WIDTH;
-    int SCREEN_HEIGHT;
-
-    SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *texture;
-    SDL_Event event;
 };
 
 #endif

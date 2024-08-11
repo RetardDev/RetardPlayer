@@ -1,8 +1,9 @@
 #include "VideoPlayerScene.hpp"
-
+#include "videoRenderer.hpp"
+#include "videoProcessor.hpp"
 VideoPlayerScene::VideoPlayerScene(const std::string& videoFile)
-  : videoRenderer(){
-  if(!videoRenderer.openVideo(videoFile.c_str())){
+  : videoRenderer(renderer), videoProcessor(){
+  if(!videoProcessor.openVideo(videoFile.c_str())){
     std::cerr << "Failed top open video file: " << videoFile << std::endl;
   }
 
@@ -22,7 +23,8 @@ void VideoPlayerScene::update(){}
 void VideoPlayerScene::render(SDL_Renderer* renderer){
   videoRenderer.prepareScene();
 
-  
-  
+  //AVFrame* pFrame = videoProcessor.decodeFrame();
+  //videoRenderer.renderFrame(frame);
+  videoRenderer.presentScene();
 
 }

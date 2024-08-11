@@ -1,21 +1,25 @@
 #include "MainMenuScene.hpp"
 #include "UIButton.hpp"
 #include <iostream>
+#include <thread>
 #include "VideoPlayerScene.hpp"
 #include "FileDialog.hpp"
-MainMenuScene::MainMenuScene(App* app){
-  auto playButton = std::make_shared<UIButton>(540, 335, 200, 50, "Play Video", [app](){
-      FileDialog fileDialog;
+MainMenuScene::MainMenuScene(App* app) : app(app){
+  auto playButton = std::make_shared<UIButton>(540, 335, 200, 50, "Play Video", [this, app](){
+    std::thread fileThread([this, app](){
+      FileDialog fileDialog(app->getArgc(), app->getArgv());
       std::string filePath = fileDialog.openFile();
   
       if(!filePath.empty()){
       std::cout << "Play button clicked" << std::endl;
       std::cout << "File path is " << filePath << std::endl;
-      app->changeScene(std::make_unique<VideoPlayerScene>(filePath));
+       app->changeScene(std::make_unique<VideoPlayerScene>(filePath));
       }else{
         std::cerr << "No file selected" << std::endl;
       }
-
+    });
+      
+    fileThread.detach();
   });
   uiManager.addElement(playButton);
 

@@ -58,17 +58,16 @@ std::string FileDialog::openFile(){
 }
 
 
-#elif defined(__linux__)
+#elif defined __linux__
 #include <gtk-3.0/gtk/gtk.h>
-#include <libintl.h>
-#define _(String) gettext(String)
 
-FileDialog::FileDialog(){}
+//tested on one machine
+FileDialog::FileDialog(int* argc, char*** argv){
+  gtk_init(argc, argv);
+}
 
 FileDialog::~FileDialog(){}
 
-
-//tested and can not create (gtk_file_chooser_dialog_new)
 std::string FileDialog::openFile(){
   GtkWidget* dialog;
   std::string filePath;
@@ -76,7 +75,7 @@ std::string FileDialog::openFile(){
   gint res;
 
   
-dialog = gtk_file_chooser_dialog_new ("Open File",
+  dialog = gtk_file_chooser_dialog_new ("Open File",
                                       NULL,
                                       action,
                                       "Cancel",
@@ -91,7 +90,7 @@ dialog = gtk_file_chooser_dialog_new ("Open File",
     char* filename;
     GtkFileChooser* chooser = GTK_FILE_CHOOSER (dialog);
     filename = gtk_file_chooser_get_filename(chooser);
-    if(filname){
+    if(filename){
     filePath  = filename;
     g_free(filename);
     }
@@ -101,6 +100,21 @@ dialog = gtk_file_chooser_dialog_new ("Open File",
   return filePath;
 }
 
+/* replacement incase gtk does not work
+std::string FileDialog::openFile(){
+  char filename[1024] = "";
+  FILE* f = popen("zenity --file-selection --title=\"Select a file\"", "r");
 
+  if(f){
+    if(fgets(filename, sizeof(filename), f)){
+      std::string file_path(filename);
+      file_path.erase(file_path.find_last_not_of("\n\r\t") + 1);
+      pclose(f);
+      return file_path;
+    }
+    pclose(f);
+  }
+  return "";
+} */
 
 #endif

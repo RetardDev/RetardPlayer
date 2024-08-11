@@ -4,6 +4,10 @@ project(RetardPlayer)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
 include_directories(include)
 
 set(SOURCES
@@ -44,4 +48,4 @@ add_executable(RetardPlayer ${SOURCES})
 
 target_link_libraries(RetardPlayer ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${GTK3_LIBRARIES})
 
-
+target_compile_options(RetardPlayer PRIVATE -g)

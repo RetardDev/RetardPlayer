@@ -1,8 +1,12 @@
 #include "App.hpp"
 #include "MainMenuScene.hpp"
 #include <iostream>
-App::App():window(nullptr), renderer(nullptr), isRunning(true){
-    if(SDL_Init(SDL_INIT_VIDEO) < 0){
+
+App::App(int* argc, char*** argv):window(nullptr), renderer(nullptr), isRunning(true),
+  argc(argc), argv(argv)
+{
+
+  if(SDL_Init(SDL_INIT_VIDEO) < 0){
       std::cerr << "Failed to initialise SDL: " << SDL_GetError() << std::endl;
       isRunning = false;
       return;
@@ -33,24 +37,40 @@ App::~App(){
 
 void App::run(){
   while(isRunning){
-    SDL_Event event;
-    while(SDL_PollEvent(&event)){
-      if(event.type == SDL_QUIT){
-        isRunning = false;
-      }else if(currentScene){
-        currentScene->handleInput(event);
-      }
-    }
-
-    if(currentScene){
-      currentScene->update();
-      currentScene->render(renderer);
-    }
+    handleEvents();
+    update();
+    render();
 
     SDL_Delay(16);
+  }
+}
+
+void App::handleEvents(){
+  SDL_Event event;
+  while(SDL_PollEvent(&event)){
+    if(event.type == SDL_QUIT){
+      isRunning = false;
+    }else if(currentScene){
+      currentScene->handleInput(event);
+    }
+  }
+}
+
+void App::update(){
+  if(currentScene){
+    currentScene->update();
+  }
+}
+
+void App:render(){
+  if(currentScene){
+    currentScene->render(renderer);
   }
 }
 
 void App::changeScene(std::unique_ptr<Scene> newScene){
   currentScene = std::move(newScene);
 }
+
+
+
