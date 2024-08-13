@@ -4,19 +4,30 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include "VideoProcessor.hpp"
+extern "C"{
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <libavutil/imgutils.h>
+}
 
-class VideoRenderer : public VideoProcessor{
+class VideoRenderer{
   public:
-    VideoRenderer();
+    VideoRenderer(SDL_Renderer* renderer);
     virtual ~VideoRenderer();
   
     void prepareScene();
     void presentScene();
+    void createTexture(int width, int height);
     void renderFrame(AVFrame* pFrame);
 
-  private:
+  private:  
     SDL_Renderer *renderer;
     SDL_Texture *texture;
+    SDL_Rect sdlRect;
+    SwsContext* swsContext;
+
+
 };
 
 #endif

@@ -17,7 +17,8 @@ class App{
     
     int* getArgc() const {return argc;};
     char*** getArgv() const {return argv;};
-
+    
+    SDL_Renderer* getRenderer();
 
   private:
     void handleEvents();

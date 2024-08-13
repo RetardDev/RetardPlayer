@@ -1,5 +1,5 @@
 #include "VideoUI.hpp"
-
+/*
 VideoUI::VideoUI(VideoRenderer* renderer) : videoRenderer(renderer){
   auto playButton = std::make_shared<UIButton>(50, 50, 100, 50, "Play", [](){
       std::cout << "Play button clicked" << std::endl;
@@ -24,4 +24,4 @@ void VideoUI::run(){
   }
 }
 
-
+*/

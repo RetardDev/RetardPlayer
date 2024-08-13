@@ -1,5 +1,6 @@
 #include "App.hpp"
 #include "MainMenuScene.hpp"
+#include "VideoPlayerScene.hpp"
 #include <iostream>
 
 App::App(int* argc, char*** argv):window(nullptr), renderer(nullptr), isRunning(true),
@@ -41,7 +42,7 @@ void App::run(){
     update();
     render();
 
-    SDL_Delay(16);
+    //SDL_Delay(16);
   }
 }
 
@@ -50,8 +51,19 @@ void App::handleEvents(){
   while(SDL_PollEvent(&event)){
     if(event.type == SDL_QUIT){
       isRunning = false;
+    }else if(event.type == SDL_USEREVENT){
+      if(event.user.code == 0){
+        std::string* filePath = static_cast<std::string*>(event.user.data1);
+        if(!filePath->empty()){
+          std::cout << "File path is " << *filePath << std::endl;
+          changeScene(std::make_unique<VideoPlayerScene>(*filePath, renderer));
+        }else{
+          std::cerr << "No file selected" << std::endl;
+        }
+        delete filePath;
+      }
     }else if(currentScene){
-      currentScene->handleInput(event);
+        currentScene->handleInput(event);
     }
   }
 }
@@ -62,7 +74,7 @@ void App::update(){
   }
 }
 
-void App:render(){
+void App::render(){
   if(currentScene){
     currentScene->render(renderer);
   }
@@ -72,5 +84,5 @@ void App::changeScene(std::unique_ptr<Scene> newScene){
   currentScene = std::move(newScene);
 }
 
-
+SDL_Renderer* App::getRenderer(){return this->renderer;}
 
