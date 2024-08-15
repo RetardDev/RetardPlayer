@@ -6,12 +6,13 @@
 
 class VideoUI {
   public:
-    VideoUI(VideoRenderer* renderer);
+    explicit VideoUI(SDL_Renderer* renderer, UIManager uiManager);
     void run();
 
   private:
     VideoRenderer* videoRenderer;
     UIManager uiManager;
+    SDL_Renderer* renderer;
 };
 
 #endif

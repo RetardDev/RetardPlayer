@@ -20,7 +20,8 @@ void VideoRenderer::presentScene(){
 void VideoRenderer::createTexture(int width, int height){
   if(texture){SDL_DestroyTexture(texture);}
 
-  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12, SDL_TEXTUREACCESS_STREAMING, width, height);
+  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
+  texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, width, height);
   if(!texture){
     std::cerr << "SDL Create Texture Error : " << SDL_GetError() << std::endl;
   }
@@ -37,13 +38,13 @@ void VideoRenderer::renderFrame(AVFrame* pFrame){
         createTexture(pFrame->width, pFrame->height);
     }
 
-    uint8_t* pixels[3];
-    int pitch[3];
+   // uint8_t* pixels[3];
+    //int pitch[3];
 
-    if(SDL_LockTexture(texture, nullptr, (void**)pixels, pitch) < 0){
+    /*if(SDL_LockTexture(texture, nullptr, (void**)pixels, pitch) < 0){
       std::cerr << "SDL Lock Texture Error: " << SDL_GetError() << std::endl;
       return;
-    }
+    }*/
       
     SDL_UpdateTexture(texture, NULL, pFrame->data[0], pFrame->linesize[0]);
    // SDL_UnlockTexture(texture);

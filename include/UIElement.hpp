@@ -2,8 +2,6 @@
 #define UIELEMENT_HPP
 
 #include <SDL2/SDL.h>
-#include <string>
-
 class UIElement {
   public:
     UIElement(int x, int y, int width, int height);

@@ -1,19 +1,17 @@
 #ifndef VIDEORENDERER_HPP
 #define VIDEORENDERER_HPP
 
-#include <iostream>
 #include <SDL2/SDL.h>
-#include "VideoProcessor.hpp"
 extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
-#include <libavutil/imgutils.h>
+  #include <libavutil/imgutils.h>
 }
-
+#include <iostream>
 class VideoRenderer{
   public:
-    VideoRenderer(SDL_Renderer* renderer);
+    explicit VideoRenderer(SDL_Renderer* renderer);
     virtual ~VideoRenderer();
   
     void prepareScene();

@@ -5,12 +5,11 @@
 #include "VideoProcessor.hpp"
 #include "VideoRenderer.hpp"
 #include "UIManager.hpp"
-#include <memory>
-
+#include "VideoUI.hpp"
 class VideoPlayerScene : public Scene{ 
   public:
     VideoPlayerScene(const std::string& videoFile, SDL_Renderer* renderer);
-    ~VideoPlayerScene() = default;
+    ~VideoPlayerScene() override = default;
 
     void handleInput(const SDL_Event& event) override;
     void update() override;
@@ -20,6 +19,7 @@ class VideoPlayerScene : public Scene{
     VideoRenderer videoRenderer;
     VideoProcessor videoProcessor;
     UIManager uiManager;
+    VideoUI* videoUI;
 };
 
 #endif

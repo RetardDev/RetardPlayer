@@ -6,11 +6,9 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
-
 }
-#include <iostream>
 #include <chrono>
-
+#include <iostream>
 class VideoProcessor {
   public:
     VideoProcessor();
@@ -18,7 +16,11 @@ class VideoProcessor {
 
     void setFrameDuration(const std::chrono::milliseconds& duration);
     std::chrono::steady_clock::time_point getNextFrameTime();
+    double getFrameRate() const;
     void updateLastFrameTime();
+
+    void cleanUp();
+
     bool openVideo(const char* filename);
     bool readNextPacket();
     AVFrame* decodeFrame();

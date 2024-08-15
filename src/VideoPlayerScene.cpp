@@ -3,8 +3,9 @@
 #include "VideoProcessor.hpp"
 #include <chrono>
 #include <thread>
+#include "VideoUI.hpp"
 VideoPlayerScene::VideoPlayerScene(const std::string& videoFile, SDL_Renderer* renderer)
-  : videoRenderer(renderer), videoProcessor(){
+  : videoRenderer(renderer), videoProcessor(), videoUI(new VideoUI(renderer, uiManager)){
   if(!videoProcessor.openVideo(videoFile.c_str())){
     std::cerr << "Failed top open video file: " << videoFile << std::endl;
   }
@@ -13,7 +14,7 @@ VideoPlayerScene::VideoPlayerScene(const std::string& videoFile, SDL_Renderer* r
       std::cout << "Back button clicked" << std::endl;
     });
 
-    uiManager.addElement(backButton);
+    uiManager.addElement(backButton); 
 }
 
 void VideoPlayerScene::handleInput(const SDL_Event& event){
@@ -22,23 +23,20 @@ void VideoPlayerScene::handleInput(const SDL_Event& event){
 
 void VideoPlayerScene::update(){
 
-  auto now = std::chrono::steady_clock::now();
-  auto nextFrameTime = videoProcessor.getNextFrameTime();
+//  auto now = std::chrono::steady_clock::now();
+  //auto nextFrameTime = videoProcessor.getNextFrameTime();
 
   while(videoProcessor.readNextPacket()){
   AVFrame* frame = videoProcessor.decodeFrame();
         if (frame) {
-
-            auto waitTime = std::chrono::duration_cast<std::chrono::milliseconds>(nextFrameTime-now);
-
+ //           auto waitTime = std::chrono::duration_cast<std::chrono::milliseconds>(nextFrameTime-now);
             
-            if(waitTime.count() > 0){std::this_thread::sleep_for(waitTime);}
-
+   //         if(waitTime.count() > 0){SDL_Delay(waitTime.count());}
             videoRenderer.renderFrame(frame);
-
-            videoProcessor.updateLastFrameTime();
-            now = std::chrono::steady_clock::now();
-            nextFrameTime = videoProcessor.getNextFrameTime();
+          videoUI->run();
+     //       videoProcessor.updateLastFrameTime();
+       //     now = std::chrono::steady_clock::now();
+         //   nextFrameTime = videoProcessor.getNextFrameTime();
         }
   }
 

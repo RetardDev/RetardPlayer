@@ -6,8 +6,9 @@
 #include "VideoPlayerScene.hpp"
 #include "FileDialog.hpp"
 #include "nfd.hpp"
-
-std::string openFileDialog(){
+#include <memory>
+#include <iostream>
+std::string MainMenuScene::openFileDialog(){
       NFD_Init();
 
     nfdchar_t* outPath;
@@ -35,36 +36,29 @@ std::string openFileDialog(){
 
     return filePath;}
 
+MainMenuScene::MainMenuScene(App* app) : app(app){}
 
-MainMenuScene::MainMenuScene(App* app) : app(app){
-
-  auto playButton = std::make_shared<UIButton>(540, 335, 200, 50, "Play Video", [this, app](){
-     std::thread([this, app](){
-         std::string filePath = openFileDialog();
+void MainMenuScene::initialize(){
+  auto sharedThis = shared_from_this();
+    std::cout << "Shared This Address: " << sharedThis.get() << std::endl;
  
-         if(!filePath.empty()){
-          std::cout << filePath;
-          app->changeScene(std::make_unique<VideoPlayerScene>(filePath, app->getRenderer()));
-         }else{
-         //logic to be fixed later 
-          std::cerr << filePath;
-         }
-
-         }).detach();  
-     });
-
+  auto playButton = std::make_shared<UIButton>(540, 335, 200, 50, "Play Video", [sharedThis]() {
+ 
+    std::thread([sharedThis]() {
+        std::string filePath = sharedThis->openFileDialog();
+        if (!filePath.empty()) { sharedThis->app->changeScene(std::make_unique<VideoPlayerScene>(filePath, sharedThis->app->getRenderer()));}
+    }).detach();  
+  });
 
   uiManager.addElement(playButton);
 
-   auto exitButton = std::make_shared<UIButton>(
+  auto exitButton = std::make_shared<UIButton>(
         540, 405, 200, 50, "Exit", []() {
             std::cout << "Exit button clicked" << std::endl;
             exit(0); 
         }
     );
-    uiManager.addElement(exitButton);
-
-
+  uiManager.addElement(exitButton);
 
 }
 

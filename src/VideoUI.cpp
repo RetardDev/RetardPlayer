@@ -1,6 +1,6 @@
 #include "VideoUI.hpp"
-/*
-VideoUI::VideoUI(VideoRenderer* renderer) : videoRenderer(renderer){
+
+VideoUI::VideoUI(SDL_Renderer* renderer,UIManager uiManager ) : renderer(renderer), uiManager(uiManager){
   auto playButton = std::make_shared<UIButton>(50, 50, 100, 50, "Play", [](){
       std::cout << "Play button clicked" << std::endl;
       });
@@ -13,15 +13,13 @@ VideoUI::VideoUI(VideoRenderer* renderer) : videoRenderer(renderer){
   uiManager.addElement(pauseButton);
 } 
 
-void VideoUI::run(){
-  while(true){
-    videoRenderer->handleInput();
-    videoRenderer->prepareScene();
+void VideoUI::run()
+//    videoRenderer->handleInput();
+ //   videoRenderer->prepareScene();
 
     uiManager.render(videoRenderer->getRenderer());
-    videoRenderer->presentScene();
-    SDL_Delay(33);
+   // videoRenderer->presentScene();
+
   }
 }
 
-*/

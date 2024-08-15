@@ -3,8 +3,7 @@
 #include "VideoPlayerScene.hpp"
 #include <iostream>
 
-App::App(int* argc, char*** argv):window(nullptr), renderer(nullptr), isRunning(true),
-  argc(argc), argv(argv)
+App::App(int* argc, char*** argv):argc(argc), argv(argv), window(nullptr), renderer(nullptr), isRunning(true)
 {
 
   if(SDL_Init(SDL_INIT_VIDEO) < 0){
@@ -26,11 +25,19 @@ App::App(int* argc, char*** argv):window(nullptr), renderer(nullptr), isRunning(
       isRunning = false;
       return;
     }
+      currentScene = std::make_shared<MainMenuScene>(this);
 
-    currentScene = std::make_unique<MainMenuScene>(this);
-}
+     auto scene = std::dynamic_pointer_cast<MainMenuScene>(currentScene);
+  if(scene){scene->initialize();}
+  
+   }
 
 App::~App(){
+  std::cout << "App being deleted";
+  if(argc){argc = nullptr;}
+  if(argv){argv = nullptr;}
+  
+  currentScene.reset();
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
@@ -51,38 +58,28 @@ void App::handleEvents(){
   while(SDL_PollEvent(&event)){
     if(event.type == SDL_QUIT){
       isRunning = false;
-    }else if(event.type == SDL_USEREVENT){
-      if(event.user.code == 0){
-        std::string* filePath = static_cast<std::string*>(event.user.data1);
-        if(!filePath->empty()){
-          std::cout << "File path is " << *filePath << std::endl;
-          changeScene(std::make_unique<VideoPlayerScene>(*filePath, renderer));
-        }else{
-          std::cerr << "No file selected" << std::endl;
-        }
-        delete filePath;
-      }
     }else if(currentScene){
         currentScene->handleInput(event);
-    }
+    }  
   }
 }
 
-void App::update(){
+void App::update() const{
   if(currentScene){
     currentScene->update();
   }
 }
 
-void App::render(){
+void App::render() const{
   if(currentScene){
     currentScene->render(renderer);
   }
 }
 
-void App::changeScene(std::unique_ptr<Scene> newScene){
+void App::changeScene(std::shared_ptr<Scene> newScene){
+ 
   currentScene = std::move(newScene);
 }
 
-SDL_Renderer* App::getRenderer(){return this->renderer;}
+SDL_Renderer* App::getRenderer() const {return this->renderer;}
 
