@@ -48,7 +48,7 @@ void MainMenuScene::initialize(){
         std::string filePath = sharedThis->openFileDialog();
         if (!filePath.empty()) { sharedThis->app->changeScene(std::make_unique<VideoPlayerScene>(filePath, sharedThis->app->getRenderer()));}
     }).detach();  
-  });
+  }, app->getRenderer());
 
   uiManager.addElement(playButton);
 
@@ -56,7 +56,7 @@ void MainMenuScene::initialize(){
         540, 405, 200, 50, "Exit", []() {
             std::cout << "Exit button clicked" << std::endl;
             exit(0); 
-        }
+        }, app->getRenderer()
     );
   uiManager.addElement(exitButton);
 

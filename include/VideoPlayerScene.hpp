@@ -5,7 +5,7 @@
 #include "VideoProcessor.hpp"
 #include "VideoRenderer.hpp"
 #include "UIManager.hpp"
-#include "VideoUI.hpp"
+
 class VideoPlayerScene : public Scene{ 
   public:
     VideoPlayerScene(const std::string& videoFile, SDL_Renderer* renderer);
@@ -19,7 +19,9 @@ class VideoPlayerScene : public Scene{
     VideoRenderer videoRenderer;
     VideoProcessor videoProcessor;
     UIManager uiManager;
-    VideoUI* videoUI;
+    AVFrame* currentFrame;
+    bool isPlaying;
+    SDL_Rect controlBarRect; 
 };
 
 #endif

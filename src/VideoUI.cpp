@@ -1,25 +1,29 @@
 #include "VideoUI.hpp"
 
-VideoUI::VideoUI(SDL_Renderer* renderer,UIManager uiManager ) : renderer(renderer), uiManager(uiManager){
-  auto playButton = std::make_shared<UIButton>(50, 50, 100, 50, "Play", [](){
-      std::cout << "Play button clicked" << std::endl;
-      });
+VideoUI::VideoUI(SDL_Renderer* renderer,UIManager* uiManager ) : renderer(renderer), uiManager(uiManager){}
 
-  auto pauseButton = std::make_shared<UIButton>(200, 50, 100, 50, "Pause", [](){  
-      std::cout << "Pause button clicked" << std::endl;
-      });
+void VideoUI::createUIElements(){
+ 
+  int buttonWidth = 50;
+  int buttonHeight = 50;
+  int screenWidth = 1280;
+  int screenHeight = 720;
 
-  uiManager.addElement(playButton);
-  uiManager.addElement(pauseButton);
-} 
+  int playButtonX = (screenWidth / 2) - (buttonWidth /2);
+  int playButtonY = screenHeight + 20;
 
-void VideoUI::run()
-//    videoRenderer->handleInput();
- //   videoRenderer->prepareScene();
+  auto controlBar = std::make_shared<UIButton>(screenWidth, screenHeight - 100, screenWidth, 100, "", nullptr, renderer);
 
-    uiManager.render(videoRenderer->getRenderer());
-   // videoRenderer->presentScene();
+  uiManager->addElement(controlBar);
+}
 
-  }
+
+void VideoUI::handleInput(const SDL_Event& event){
+    uiManager->handleEvent(event); 
+}
+
+void VideoUI::render(){
+    uiManager->render(renderer);
+
 }
 

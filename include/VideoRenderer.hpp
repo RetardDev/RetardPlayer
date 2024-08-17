@@ -22,7 +22,7 @@ class VideoRenderer{
   private:  
     SDL_Renderer *renderer;
     SDL_Texture *texture;
-    SDL_Rect sdlRect;
+    SDL_Rect videoRect;
     SwsContext* swsContext;
 
 
