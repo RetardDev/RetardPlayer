@@ -140,7 +140,7 @@ bool VideoProcessor::openVideo(const char* filename){
 
 //will be removed on the next commit
 
- /*   AVStream* videoStream = pFormatContext->streams[videoStreamIndex];
+    AVStream* videoStream = pFormatContext->streams[videoStreamIndex];
 
     AVRational fps = videoStream->avg_frame_rate;
     if (fps.num == 0 || fps.den == 0) {
@@ -153,11 +153,20 @@ bool VideoProcessor::openVideo(const char* filename){
 
     std::chrono::milliseconds frameDuration(static_cast<int>(1000.0 / frameRate));
     setFrameDuration(frameDuration);
-*/
+
     std::cout << "videoProcessor openvideo function run smoothly\n";
 
+    frameDelay = av_q2d(pFormatContext->streams[videoStreamIndex]->time_base) * av_q2d(pCodecContext->time_base) * 1000.0;
+
+
+    std::cout << "Frame Delay is " << frameDelay << std::endl;
+    
     return true;
 }
+
+
+double VideoProcessor::getFrameDelay(){return frameDelay;}
+
 
 double VideoProcessor::getFrameRate() const{
   if(videoStreamIndex < 0 || !pFormatContext || pFormatContext->nb_streams <= videoStreamIndex){std::cerr << "Invalid video stream index"; return 0.0;} 

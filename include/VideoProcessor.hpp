@@ -12,13 +12,13 @@ extern "C" {
 class VideoProcessor {
   public:
     VideoProcessor();
-    virtual ~VideoProcessor();
+    ~VideoProcessor();
 
     void setFrameDuration(const std::chrono::milliseconds& duration);
     std::chrono::steady_clock::time_point getNextFrameTime();
     double getFrameRate() const;
     void updateLastFrameTime();
-
+    double getFrameDelay();
     void cleanUp();
 
     bool openVideo(const char* filename);
@@ -34,7 +34,7 @@ class VideoProcessor {
     uint8_t* buffer;
     AVPacket* pPacket;
     int videoStreamIndex;
-    
+    double frameDelay;    
     std::chrono::steady_clock::time_point lastFrameTime;
     std::chrono::milliseconds frameDuration;
 

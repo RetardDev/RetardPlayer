@@ -9,6 +9,7 @@ UIButton::UIButton(int x, int y, int w, int h, const std::string& text, const st
       if(!iconPath.empty()){
         loadIconTexture(renderer, iconPath, &iconTexture);
         currentTexture = iconTexture;
+        if(!iconTexture){std::cerr << "Icon texture not loaded properly\n";}
       }
 
       if(!clickedIconPath.empty()){
@@ -31,7 +32,8 @@ bool UIButton::loadIconTexture(SDL_Renderer* renderer, const std::string& path, 
 }
 
 void UIButton::render(SDL_Renderer* renderer){
-  if(currentTexture){
+  if(currentTexture != nullptr){
+    SDL_SetRenderTarget(renderer, currentTexture);
     SDL_Rect dstRect = {x, y, width, height};
     SDL_RenderCopy(renderer, currentTexture, nullptr, &dstRect);
   }else{

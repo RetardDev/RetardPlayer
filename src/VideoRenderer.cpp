@@ -1,7 +1,7 @@
 #include "VideoRenderer.hpp"  
 
 VideoRenderer::VideoRenderer(SDL_Renderer* renderer): renderer(renderer), texture(nullptr), swsContext(nullptr){
-  videoRect = {0, 0, 1280, 720};
+  videoRect = {0, 0, 1280, 680};
 }
 
 VideoRenderer::~VideoRenderer(){

@@ -5,6 +5,10 @@
 #include "VideoProcessor.hpp"
 #include "VideoRenderer.hpp"
 #include "UIManager.hpp"
+#include <thread>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
 
 class VideoPlayerScene : public Scene{ 
   public:
@@ -20,8 +24,18 @@ class VideoPlayerScene : public Scene{
     VideoProcessor videoProcessor;
     UIManager uiManager;
     AVFrame* currentFrame;
+
+    std::thread decodeThread;
+    std::queue<AVFrame*> frameQueue;
+    std::mutex queueMutex;
+    std::condition_variable queueCondition;
     bool isPlaying;
-    SDL_Rect controlBarRect; 
+    bool isDecoding;
+    SDL_Rect controlBarRect;
+
+    void decodeLoop();
+    void startDecoding();
+    void stopDecodingThread();
 };
 
 #endif
