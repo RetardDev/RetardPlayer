@@ -19,10 +19,12 @@ set(SOURCES
     src/UIButton.cpp
     src/UIElement.cpp
     src/VideoUI.cpp
+    src/MediaProcessor.cpp
     src/VideoProcessor.cpp 
     src/FileDialog.cpp
     src/nfd_gtk.cpp
-)
+  
+  )
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_ttf REQUIRED)

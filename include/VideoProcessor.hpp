@@ -7,39 +7,37 @@ extern "C" {
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
 }
+#include "MediaProcessor.hpp"
 #include <chrono>
 #include <iostream>
+#include <memory>
+#include <thread>
+
 class VideoProcessor {
   public:
-    VideoProcessor();
+    VideoProcessor(std::shared_ptr<MediaProcessor> mediaProcessor);
     ~VideoProcessor();
 
-    void setFrameDuration(const std::chrono::milliseconds& duration);
-    std::chrono::steady_clock::time_point getNextFrameTime();
-    double getFrameRate() const;
-    void updateLastFrameTime();
-    double getFrameDelay();
+    void initializeVideo();
+
+    //void setFrameDuration(const std::chrono::milliseconds& duration);
+    //std::chrono::steady_clock::time_point getNextFrameTime();
+    //double getFrameRate() const;
+    ///void updateLastFrameTime();
+    //double getFrameDelay();
     void cleanUp();
 
-    bool openVideo(const char* filename);
+    bool openVideo();
     bool readNextPacket();
     AVFrame* decodeFrame();
 
-  protected:
-    AVFormatContext* pFormatContext;
-    AVCodecContext* pCodecContext;
-    const AVCodec *pCodec;
-    AVFrame* pFrame;
-    AVFrame* pFrameYUV;
-    uint8_t* buffer;
-    AVPacket* pPacket;
-    int videoStreamIndex;
-    double frameDelay;    
-    std::chrono::steady_clock::time_point lastFrameTime;
-    std::chrono::milliseconds frameDuration;
+  private:
+   std::shared_ptr<MediaProcessor> mediaProcessor;
+    //double frameDelay;    
+//    std::chrono::steady_clock::time_point lastFrameTime;
+  //  std::chrono::milliseconds frameDuration;
 
-
-    struct SwsContext *img_convet_ctx;
+   std::unique_ptr<SwsContext, void(*)(SwsContext*)> img_convet_ctx;
 
 };
 
