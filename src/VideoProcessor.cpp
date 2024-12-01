@@ -1,89 +1,80 @@
 #include "VideoProcessor.hpp"
 
-VideoProcessor::VideoProcessor(std::shared_ptr<MediaProcessor> mediaProcessor) :  mediaProcessor(mediaProcessor), img_convet_ctx(nullptr, sws_freeContext){}
-
-VideoProcessor::~VideoProcessor(){
-   
+VideoProcessor::VideoProcessor(std::shared_ptr<MediaProcessor> mediaProcessor)
+    : mediaProcessor(mediaProcessor), img_convet_ctx(nullptr, sws_freeContext) {
 }
 
-void VideoProcessor::cleanUp(){}
+VideoProcessor::~VideoProcessor() {}
 
-bool VideoProcessor::openVideo(){
-    auto frameYUV = mediaProcessor->getFrameYUV().get();
-    auto buffer = mediaProcessor->getBuffer();
-    auto codecContext = mediaProcessor->getCodecContext();
-
-  if (frameYUV && buffer && codecContext) {
-      av_image_fill_arrays(
-            frameYUV->data,
-            frameYUV->linesize,
-            buffer.get(),
-            AV_PIX_FMT_YUV420P,  // Match the format of the allocated frame
-            codecContext->width,
-            codecContext->height,
-            32
-        );
-  } else {
-      std::cerr << "Error: Invalid media processor components." << std::endl;
-      return false;
-  }
-
-    img_convet_ctx.reset(sws_getContext(mediaProcessor->getCodecContext()->width, mediaProcessor->getCodecContext()->height, mediaProcessor->getCodecContext()->pix_fmt,
-                                      mediaProcessor->getCodecContext()->width, mediaProcessor->getCodecContext()->height, AV_PIX_FMT_RGB24, SWS_LANCZOS, NULL, NULL, NULL));
-      
-      if (!img_convet_ctx) { std::cerr << "Could not initialize sws context\n"; return 0; }
-
-    std::cout << "VideoProcessor OpenVideo Executed\n";
-    
-    return true;
+void VideoProcessor::cleanUp() {
+  // Implement any necessary cleanup logic, if needed.
 }
 
+bool VideoProcessor::openVideo() {
+  auto codecContext = mediaProcessor->getCodecContext();
 
-//double VideoProcessor::getFrameDelay(){return frameDelay;}
+  if (!codecContext) {
+    std::cerr << "Codec context is not initialised\n";
+    return false;
+  }
 
-bool VideoProcessor::readNextPacket(){
-  //av_packet_unref(mediaProcessor->getPacket().get());
-  int ret = av_read_frame(mediaProcessor->getFormatContext().get(), mediaProcessor->getPacket().get());
-  if(ret < 0){
-    if(ret == AVERROR_EOF){std::cerr << "End of video reached\n";
-    }else{
-      std::cerr << "Error reading frame: ";
-    }
-    return 0;  
-  }
-  
-  if(mediaProcessor->getPacket()->stream_index != mediaProcessor->getVideoStreamIndex()){
-   av_packet_unref(mediaProcessor->getPacket().get());
-return 0;
-  }
+  std::cout << "VideoProcessor OpenVideo Executed\n";
   return true;
 }
 
-AVFrame* VideoProcessor::decodeFrame(){
-    if(!mediaProcessor->getPacket() || mediaProcessor->getPacket()->size <= 0){std::cerr << "No packet to decode\n"; return nullptr;}
+bool VideoProcessor::readNextPacket() {
+  std::unique_lock<std::mutex> lock(mediaProcessor->getFrameMutex());
+  int ret = av_read_frame(mediaProcessor->getFormatContext().get(),
+                          mediaProcessor->getPacket().get());
 
-    int ret = avcodec_send_packet(mediaProcessor->getCodecContext().get(), mediaProcessor->getPacket().get());
-    if(ret < 0){
-        std::cerr << "Error sending packet to decoder\n";
-        return nullptr;
+  if (ret < 0) {
+    if (ret == AVERROR_EOF) {
+      std::cerr << "End of video reached\n";
+    } else {
+      std::cerr << "Error reading frame\n";
     }
+    return false; // Mutex will be unlocked automatically
+  }
 
-    ret = avcodec_receive_frame(mediaProcessor->getCodecContext().get(), mediaProcessor->getFrame().get());
-    if(ret == AVERROR(EAGAIN) || ret == AVERROR_EOF){
-        return nullptr;
-    }else if (ret < 0){
-        std::cerr << "Error receiving frame from decoder\n";
-        return nullptr;
-    }
+  if (mediaProcessor->getPacket()->stream_index !=
+      mediaProcessor->getVideoStreamIndex()) {
+    av_packet_unref(mediaProcessor->getPacket().get());
+    return false; // Mutex will be unlocked automatically
+  }
 
-    if(mediaProcessor->getFrame()->width == 0 || mediaProcessor->getFrame()->height == 0){
-        std::cerr << "Invalid source frame dimensions: " << mediaProcessor->getFrame()->width << "x" << mediaProcessor->getFrame()->height << std::endl;
-        return nullptr;
-    } 
+  return true; // Mutex will be unlocked automatically
+}
 
-    mediaProcessor->getFrameYUV()->width = mediaProcessor->getFrame()->width;
-    mediaProcessor->getFrameYUV()->height = mediaProcessor->getFrame()->height;
-    mediaProcessor->getFrameYUV()->format = AV_PIX_FMT_YUV420P; 
+AVFrame *VideoProcessor::decodeFrame() {
+  std::unique_lock<std::mutex> lock(mediaProcessor->getFrameMutex());
+  auto packet = mediaProcessor->getPacket();
+  auto codecContext = mediaProcessor->getCodecContext();
+  auto frame = mediaProcessor->getFrame();
 
-    return mediaProcessor->getFrameYUV().get();
+  int ret = avcodec_send_packet(codecContext.get(), packet.get());
+  if (ret < 0) {
+    std::cerr << "Error sending packet to decoder\n";
+    return nullptr; // Mutex will be released automatically
+  }
+
+  ret = avcodec_receive_frame(codecContext.get(), frame.get());
+  if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+    return nullptr; // No more frames or need more packets, mutex released
+                    // automatically
+  } else if (ret < 0) {
+    std::cerr << "Error receiving frame from decoder\n";
+    return nullptr; // Mutex will be released automatically
+  }
+
+  if (frame->width == 0 || frame->height == 0) {
+    std::cerr << "Invalid source frame dimensions: " << frame->width << "x"
+              << frame->height << std::endl;
+    return nullptr; // Mutex will be released automatically
+  }
+
+  av_packet_unref(
+      packet.get()); // Unreference packet after successful processing
+
+  // Return the decoded YUV420P frame
+  return frame.get();
 }

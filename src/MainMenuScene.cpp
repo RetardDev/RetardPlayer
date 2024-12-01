@@ -1,75 +1,82 @@
 #include "MainMenuScene.hpp"
-#include "UIButton.hpp"
-#include <iostream>
-#include <thread>
-#include <future>
-#include "VideoPlayerScene.hpp"
 #include "FileDialog.hpp"
-#include "nfd.hpp"
-#include <memory>
+#include "UIButton.hpp"
+#include "VideoPlayerScene.hpp"
+#include <future>
 #include <iostream>
-std::string MainMenuScene::openFileDialog(){
-      NFD_Init();
+#include <memory>
+#include <thread>
 
-    nfdchar_t* outPath;
+#include "nativefiledialog /nfd.h"
 
-   
-    nfdfilteritem_t filterItem[2] = {{"Video Files", "mp4,avi,mkv"}, {"Audio Files", "mp3,wav,flac"}};
+std::string MainMenuScene::openFileDialog() {
+  NFD_Init();
 
-  
-    nfdopendialogu8args_t args = {0};
-    args.filterList = filterItem;
-    args.filterCount = 2;
-    nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
-    
-    std::string filePath;
-    if (result == NFD_OKAY) {
-        filePath = outPath;
-        NFD_FreePath(outPath);
-    } else if (result == NFD_CANCEL) {
-        filePath = "User pressed cancel.";
-    } else {
-        filePath = "Error: " + std::string(NFD_GetError());
-    }
+  nfdchar_t *outPath;
 
-    NFD_Quit();
+  nfdfilteritem_t filterItem[2] = {{"Video Files", "mp4,avi,mkv"},
+                                   {"Audio Files", "mp3,wav,flac"}};
 
-    return filePath;}
+  nfdopendialogu8args_t args = {0};
+  args.filterList = filterItem;
+  args.filterCount = 2;
+  nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
 
-MainMenuScene::MainMenuScene(App* app) : app(app){}
+  std::string filePath;
+  if (result == NFD_OKAY) {
+    filePath = outPath;
+    NFD_FreePath(outPath);
+  } else if (result == NFD_CANCEL) {
+    filePath = "User pressed cancel.";
+  } else {
+    filePath = "Error: " + std::string(NFD_GetError());
+  }
 
-void MainMenuScene::initialize(){
+  NFD_Quit();
+
+  return filePath;
+}
+
+MainMenuScene::MainMenuScene(App *app) : app(app) {}
+
+void MainMenuScene::initialize() {
   auto sharedThis = shared_from_this();
-    std::cout << "Shared This Address: " << sharedThis.get() << std::endl;
- 
-  auto playButton = std::make_shared<UIButton>(540, 335, 200, 50, "Play Video", [sharedThis]() {
- 
-    std::thread([sharedThis]() {
-        std::string filePath = sharedThis->openFileDialog();
-        if (!filePath.empty()) { sharedThis->app->changeScene(std::make_unique<VideoPlayerScene>(filePath, sharedThis->app->getRenderer()));}
-    }).detach();  
-  }, app->getRenderer());
+  std::cout << "Shared This Address: " << sharedThis.get() << std::endl;
+
+  auto playButton = std::make_shared<UIButton>(
+      540, 335, 200, 50, "Play Video",
+      [sharedThis]() {
+        std::thread([sharedThis]() {
+          std::string filePath = sharedThis->openFileDialog();
+          if (!filePath.empty()) {
+            sharedThis->app->changeScene(std::make_unique<VideoPlayerScene>(
+                filePath, sharedThis->app->getRenderer(),
+                sharedThis->app->getWindow()));
+          }
+        }).detach();
+      },
+      app->getRenderer());
 
   uiManager.addElement(playButton);
 
   auto exitButton = std::make_shared<UIButton>(
-        540, 405, 200, 50, "Exit", []() {
-            std::cout << "Exit button clicked" << std::endl;
-            exit(0); 
-        }, app->getRenderer()
-    );
+      540, 405, 200, 50, "Exit",
+      []() {
+        std::cout << "Exit button clicked" << std::endl;
+        exit(0);
+      },
+      app->getRenderer());
   uiManager.addElement(exitButton);
-
 }
 
-void MainMenuScene::handleInput(const SDL_Event& event){
+void MainMenuScene::handleInput(const SDL_Event &event) {
   uiManager.handleEvent(event);
 }
 
-void MainMenuScene::update(){}
+void MainMenuScene::update() {}
 
-void MainMenuScene::render(SDL_Renderer* renderer){
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0 , 255);
+void MainMenuScene::render(SDL_Renderer *renderer) {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
 
   uiManager.render(renderer);
