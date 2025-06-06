@@ -1,5 +1,5 @@
 # **Retard Player**  
-A simple cross-platform video player built in C++.
+A cross-platform video player built in C++.
 
 ## **How to Build and Run**
 
