@@ -78,5 +78,5 @@ Ensure the following dependencies are installed:
   - Clang (Mac)
   - MinGW/Visual Studio (Windows)  
 
-- **SDL2 and FFmpeg Libraries
+- SDL2 and FFmpeg Libraries
 
